@@ -32,6 +32,22 @@ Mesh::Mesh(std::vector<float> vertexPositions) {
     SetupMesh();
 }
 
+Mesh::Mesh(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs,
+    std::vector<unsigned int> indices, std::vector<Texture> textures) {
+
+    for (int i = 0; i < positions.size(); i++) {
+        this->vertices.push_back({ positions[i], normals[i], uvs[i] });
+    }
+
+    this->indices = indices;
+    this->textures = textures;
+
+    this->hasNormals = true;
+    this->hasUVs = true;
+
+    this->hasIndices = true;
+}
+
 void Mesh::SetupMesh() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

@@ -22,6 +22,8 @@ class Mesh {
         bool hasIndices;
 
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, bool hasNormals, bool hasUVs);
+        Mesh(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs, 
+            std::vector<unsigned int> indices, std::vector<Texture> textures);
         Mesh(std::vector<float> vertexPositions);
         void Draw(Shader &shader);
 

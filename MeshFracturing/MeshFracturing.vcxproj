@@ -171,6 +171,9 @@
     <ClCompile Include="vendor\SpeedRender\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\FractureComponent.h" />
+    <ClInclude Include="include\Plane.h" />
+    <ClInclude Include="include\PlaneFracture.h" />
     <ClInclude Include="vendor\cy\cyCore.h" />
     <ClInclude Include="vendor\cy\cyTriMesh.h" />
     <ClInclude Include="vendor\cy\cyVector.h" />

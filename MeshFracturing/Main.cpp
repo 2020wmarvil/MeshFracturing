@@ -22,6 +22,10 @@
 #include "SpeedRender/Cubemap.h"
 #include "SpeedRender/Skybox.h"
 
+#include "Plane.h"
+#include "FractureComponent.h"
+#include "PlaneFracture.h"
+
 GLenum glCheckError_(const char *file, int line)
 {
     GLenum errorCode;
@@ -181,6 +185,22 @@ int main() {
 
         ProcessInput(window);
 
+
+
+        // if space is pressed, then fracture!!
+        unsigned int cuts = 4;
+        std::vector<FractureComponent> fractures;
+        for (int i = 0; i < cuts; i++) {
+            // get random plane, custom plane, or debug plane
+
+            // for fracture in fractures, slice!
+            // clear fractures and free
+            // put new fractures into fractures
+        }
+        
+        // render all fractures
+
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -231,13 +251,6 @@ int main() {
         if (shaderState == SS_UNLIT) {
             shader->SetVec3("mainColor", glm::vec3(1.0f, 1.0f, 1.0f)); 
         } else if (shaderState == SS_LIT) {
-            //shader->SetVec3("dirLight.direction", dirLight.direction);
-            //shader->SetVec3("dirLight.color", dirLight.color);
-            //shader->SetVec3("dirLight.ambient", dirLight.lightProfile.ambient);
-            //shader->SetVec3("dirLight.diffuse", dirLight.lightProfile.diffuse);
-            //shader->SetVec3("dirLight.specular", dirLight.lightProfile.specular);
-            //shader->SetFloat("material.shininess", material.shininess);
-            
             // material
             shader->SetVec3("albedo", albedo);
             shader->SetFloat("metallic", metallic);
@@ -252,7 +265,6 @@ int main() {
             shader->SetVec3("lightColors[1]", glm::vec3(1.0f, 1.0f, 1.0f));
             shader->SetVec3("lightColors[2]", glm::vec3(1.0f, 1.0f, 1.0f));
             shader->SetVec3("lightColors[3]", glm::vec3(1.0f, 1.0f, 1.0f));
-
             shader->SetVec3("cameraPos", camera.position);
         } else if (shaderState == SS_EM_LIT) {
             shader->SetVec3("cameraPos", camera.position);
@@ -261,7 +273,6 @@ int main() {
         }
 
         model->Draw(*shader);
-
         skybox.Draw(v, p);
 
         ImGui::Render();
