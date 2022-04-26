@@ -1001,7 +1001,7 @@
     <ClInclude Include="include\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PlaneFracture.h">
+    <ClInclude Include="include\ComputationalGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

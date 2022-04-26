@@ -10,8 +10,19 @@ class FractureComponent {
 public:
 	FractureComponent() { }
 
-	FractureComponent(Mesh mesh) { 
-
+	FractureComponent(const Mesh& mesh) { 
+        for (int i = 0; i < mesh.indices.size(); i += 3) {
+            AddTriangle(
+                mesh.vertices[i + 0].position,
+                mesh.vertices[i + 1].position,
+                mesh.vertices[i + 2].position,
+                mesh.vertices[i + 0].normal,
+                mesh.vertices[i + 1].normal,
+                mesh.vertices[i + 2].normal,
+                mesh.vertices[i + 0].texCoords,
+                mesh.vertices[i + 1].texCoords,
+                mesh.vertices[i + 2].texCoords);
+        }
     }
 
     void AddTriangle(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 n1, glm::vec3 n2, glm::vec3 n3, glm::vec2 uv1, glm::vec2 uv2, glm::vec2 uv3) {
@@ -30,9 +41,8 @@ public:
         uvs.push_back(uv3);
     }
 
-    Model GetMesh() {
-        Mesh mesh(positions, normals, uvs, triangles, std::vector<Texture>());
-        return Model(mesh);
+    Mesh GetMesh() {
+        return Mesh(positions, normals, uvs, triangles, std::vector<Texture>());
 	}
 private:
     std::vector<glm::vec3> positions;

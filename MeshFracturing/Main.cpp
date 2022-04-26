@@ -154,6 +154,9 @@ int main() {
     int modelState = MS_BUNNY;
     Model* model = &bunny;
 
+    enum FractureState { FS_ITERATIVE, FS_RECURSIVE, FS_TETRA, FS_VORONOI, FS_COUNT };
+    int fractureState = FS_ITERATIVE;
+
     glm::vec3 albedo(1.0f, 0.0f, 0.0f);
     float metallic = 0.0f;
     float roughness = 0.385f;
@@ -172,6 +175,15 @@ int main() {
         "assets/skyboxes/water/back.jpg"
     }; Skybox skybox(skyboxFaces);
 
+    std::vector<Model> toRender;
+    std::vector<FractureComponent> fractures;
+    bool beginFracture = false, fractureMode = false;
+
+    int iterativeIterations = 6;
+    int recursiveDepth = 4;
+    int tetraPoints = 10;
+    int voronoiPoints = 10;
+
     // render loop
     while(!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
@@ -183,26 +195,27 @@ int main() {
 
         ProcessInput(window);
 
+        if (beginFracture && !fractureMode) {
+            if (fractureState == FS_ITERATIVE) {
+                IterativeClippingFracture(model->meshes[0], fractures, iterativeIterations);
+            } else if (fractureState == FS_RECURSIVE) {
+                RecursivePlaneFracture(model->meshes[0], fractures, recursiveDepth);
+            } else if (fractureState == FS_TETRA) {
+                TetrahedralFracture(model->meshes[0], fractures, tetraPoints);
+            } else if (fractureState == FS_VORONOI) {
+                VoronoiFracture(model->meshes[0], fractures, voronoiPoints);
+            }
 
+            for (int i = 0; i < fractures.size(); i++) {
+                toRender.push_back(fractures[i].GetMesh());
+                toRender[i].transform = model->transform;
+            }
 
-        // if space is pressed, then fracture!!
-        unsigned int cuts = 4;
-        std::vector<FractureComponent> fractures;
-        for (int i = 0; i < cuts; i++) {
-            // get random plane, custom plane, or debug plane
-
-            // for fracture in fractures, slice!
-            // clear fractures and free
-            // put new fractures into fractures
+            fractureMode = true;
         }
-        
-        // render all fractures
-
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        ImGui::ShowDemoWindow();
 
         {
             ImGui::PushStyleColor(ImGuiCol_ResizeGrip, 0);
@@ -211,8 +224,34 @@ int main() {
 
             const char* model_names[MS_COUNT] = { "Cube", "Sphere", "Bunny", "Teapot", "Suzanne" };
             const char* shader_names[SS_COUNT] = { "Unlit", "Lit", "Env Mapping", "Normals", "UVs" };
+            const char* fracture_names[FS_COUNT] = { "Iterative Clipping", "Recursive Plane", "Tetrahedral", "Voronoi" };
             ImGui::Combo("Model", &modelState, model_names, IM_ARRAYSIZE(model_names));
             ImGui::Combo("Shader", &shaderState, shader_names, IM_ARRAYSIZE(shader_names));
+            ImGui::Combo("Fracture Type", &fractureState, fracture_names, IM_ARRAYSIZE(fracture_names));
+
+            if (fractureState == FS_ITERATIVE) {
+                ImGui::InputInt("Iterations", &iterativeIterations, 1, 16);
+            } else if (fractureState == FS_RECURSIVE) {
+                ImGui::InputInt("Depth", &recursiveDepth, 1, 8);
+            } else if (fractureState == FS_TETRA) {
+                ImGui::InputInt("Points", &tetraPoints, 1, 100);
+            } else if (fractureState == FS_VORONOI) {
+                ImGui::InputInt("Points", &voronoiPoints, 1, 100);
+            }
+
+            if (ImGui::Button("Fracture")) { 
+                if (!beginFracture) {
+                    beginFracture = true;
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Reset")) { 
+                toRender.clear();
+                fractures.clear();
+                beginFracture = false;
+                fractureMode = false;
+            }
+
 
             if (shaderState == SS_UNLIT) shader = &unlitShader;
             else if (shaderState == SS_LIT) shader = &litShader;
@@ -226,9 +265,6 @@ int main() {
             else if (modelState == MS_TEAPOT) model = &teapot;
             else if (modelState == MS_SUZANNE) model = &suzanne;
 
-            if (ImGui::Button("Fracture")) { }
-            ImGui::SameLine();
-            if (ImGui::Button("Reset")) { }
             ImGui::End();
 
             ImGui::Begin("FPS", (bool*)true, ImGuiWindowFlags_NoTitleBar);
@@ -237,14 +273,12 @@ int main() {
             ImGui::PopStyleColor();
         }
 
-        glm::mat4 m = model->GetModelMatrix();
-        glm::mat4 v = camera.GetViewMatrix();
-        glm::mat4 p = camera.GetProjectionMatrix();
+        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 projection = camera.GetProjectionMatrix();
 
         shader->Use();
-        shader->SetMat4("model", m);
-        shader->SetMat4("view", v);
-        shader->SetMat4("projection", p);
+        shader->SetMat4("view", view);
+        shader->SetMat4("projection", projection);
 
         if (shaderState == SS_UNLIT) {
             shader->SetVec3("mainColor", glm::vec3(1.0f, 1.0f, 1.0f)); 
@@ -270,8 +304,17 @@ int main() {
             shader->SetFloat("reflectance", reflectance);
         }
 
-        model->Draw(*shader);
-        skybox.Draw(v, p);
+        if (fractureMode) {
+            for (int i = 0; i < toRender.size(); i++) {
+                shader->SetMat4("model", toRender[i].GetModelMatrix());
+                toRender[i].Draw(*shader);
+            }
+        } else {
+            shader->SetMat4("model", model->GetModelMatrix());
+            model->Draw(*shader);
+        }
+
+        skybox.Draw(view, projection);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

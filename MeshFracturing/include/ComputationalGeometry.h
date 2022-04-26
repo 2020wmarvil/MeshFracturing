@@ -158,6 +158,15 @@ void IterativeClippingFracture(const Mesh& mesh, std::vector<FractureComponent>&
     //  add exterior piece to fracture list
     //  interior piece will be the new mesh
     // add interior piece to fracture list
+
+    // N times
+    //  get mesh bounds
+    //  imagine a sphere the size of mesh bounds
+    //  get a plane normal to that sphere
+    //  cut in two pieces along that plane
+    //  add exterior piece to fracture list
+    //  interior piece will be the new mesh
+    // add interior piece to fracture list
 }
 
 void RecursivePlaneFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int depth=4) { 
