@@ -180,7 +180,7 @@ int main() {
     std::vector<FractureComponent> fractures;
     bool beginFracture = false, fractureMode = false;
 
-    int iterativeIterations = 6;
+    int iterativeIterations = 30;
     int recursiveDepth = 4;
     int tetraPoints = 10;
     int voronoiPoints = 10;
@@ -215,7 +215,7 @@ int main() {
                 toRender[i].transform = model->transform;
 
                 // TODO: i think getbounds is local space but transform.position is world space
-                glm::vec3 dir = glm::normalize(toRender[i].meshes[0].GetBounds().center - model->transform.position);
+                glm::vec3 dir = glm::normalize(toRender[i].meshes[0].GetBounds().center+glm::vec3(0.0f, 0.00001f, 0.0f) - model->transform.position);
                 explosionDirs.push_back(dir);
             }
 
@@ -321,6 +321,7 @@ int main() {
             for (int i = 0; i < toRender.size(); i++) {
                 if (!pauseExplosion) {
                     toRender[i].UpdatePhysics(deltaTime * fractureSpeed, fractureTime, explosionDirs[i]);
+                    //toRender[i].transform.position += explosionDirs[i] * deltaTime * fractureSpeed;
                     fractureTime += deltaTime;
                 }
 

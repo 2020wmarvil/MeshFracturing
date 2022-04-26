@@ -34,9 +34,8 @@ public:
         velocity += drag * deltaTime;
 
         float fractureDuration = 0.25f;
-        std::cout << (fractureTime) << std::endl;;
         if (fractureTime < fractureDuration) {
-            float initialForce = 600.0f;
+            float initialForce = 8000.0f;
             float targetForce = 0.0f;
             float t = fractureTime / fractureDuration;
             float cubicOutT = 1 - (1 - t) * (1 - t) * (1 - t);

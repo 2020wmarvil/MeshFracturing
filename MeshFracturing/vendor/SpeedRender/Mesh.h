@@ -36,7 +36,7 @@ public:
     }
 
     void RecalculateBounds();
-    Bounds GetBounds() { return bounds; }
+    Bounds GetBounds() const { return bounds; }
 private:
     //  render data
     unsigned int VAO, VBO, EBO;

@@ -4,6 +4,8 @@
 #include "Plane.h"
 #include "FractureComponent.h"
 
+#include <stdlib.h>
+
 glm::vec3 Lerp(glm::vec3 a, glm::vec3 b, float t) {
     return a + (b - a) * t;
 }
@@ -149,7 +151,7 @@ void MeshSliceAlongPlane(const Mesh& mesh, const Plane& plane, FractureComponent
 	}
 }
 
-void IterativeClippingFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int iterations=6) { 
+void IterativeClippingFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int iterations = 6) {
     // N times
     //  get mesh bounds
     //  imagine a sphere the size of mesh bounds
@@ -159,41 +161,50 @@ void IterativeClippingFracture(const Mesh& mesh, std::vector<FractureComponent>&
     //  interior piece will be the new mesh
     // add interior piece to fracture list
 
-    Plane p(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    srand(time(NULL));
 
-    FractureComponent left, right;
-    MeshSliceAlongPlane(mesh, p, left, right);
+    Mesh currentMesh = mesh;
 
-    if (left.triangles.size() > 0) fractures.push_back(left);
-    if (right.triangles.size() > 0) fractures.push_back(right);
+    FractureComponent finalFracture;
 
-    std::cout << "fracture" << std::endl;
+    for (int i = 0; i < iterations; i++) {
+        // get bounds
+        Bounds bounds = currentMesh.GetBounds();
 
-    //std::cout << mesh.indices.size() << std::endl;
-    //std::cout << left.triangles.size() << std::endl;
-    //std::cout << right.triangles.size() << std::endl;
-    //for (int i = 0; i < left.triangles.size(); i += 3) {
-    //    std::cout << "triangle\n" << std::endl;
+        float dx = bounds.max.x - bounds.min.x;
+        float dy = bounds.max.y - bounds.min.y;
+        float dz = bounds.max.z - bounds.min.z;
 
-    //    glm::vec3 v1 = left.positions[i + 0];
-    //    glm::vec3 v2 = left.positions[i + 1];
-    //    glm::vec3 v3 = left.positions[i + 2];
+        // find the approximate radius 
+        float radius = dx;
+        if (dy > radius) radius = dy;
+        if (dz > radius) radius = dz;
+        radius *= 0.5f * 0.75f;
 
-    //    std::cout << "\t" << v1.x << ", " << v1.y << ", " << v1.z << std::endl;
-    //    std::cout << "\t" << v2.x << ", " << v2.y << ", " << v2.z << std::endl;
-    //    std::cout << "\t" << v3.x << ", " << v3.y << ", " << v3.z << std::endl;
+        float rx = (rand() % 10000 / 10000.0f) * 2.0f - 1.0f;
+        float ry = (rand() % 10000 / 10000.0f) * 2.0f - 1.0f;
+        float rz = (rand() % 10000 / 10000.0f) * 2.0f - 1.0f;
 
-    //}
+        float normed = sqrt(rx * rx + ry * ry + rz * rz);
 
+        rx /= normed;
+        ry /= normed;
+        rz /= normed;
 
-    // N times
-    //  get mesh bounds
-    //  imagine a sphere the size of mesh bounds
-    //  get a plane normal to that sphere
-    //  cut in two pieces along that plane
-    //  add exterior piece to fracture list
-    //  interior piece will be the new mesh
-    // add interior piece to fracture list
+        glm::vec3 normal = glm::vec3(rx, ry, rz);
+        glm::vec3 origin = glm::vec3(0.0f, radius, 0.0f);
+
+        Plane p(normal, origin);
+
+        FractureComponent left, right;
+        MeshSliceAlongPlane(currentMesh, p, left, right);
+
+        if (i != iterations - 1) currentMesh = left.GetMesh();
+        else finalFracture = left;
+        if (right.triangles.size() > 0) fractures.push_back(right);
+    }
+
+    if (finalFracture.triangles.size() > 0) fractures.push_back(finalFracture);
 }
 
 void RecursivePlaneFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int depth=4) { 
