@@ -46,8 +46,8 @@ GLenum glCheckError_(const char *file, int line)
 }
 #define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1000
+#define HEIGHT 750
 
 void ProcessInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);  
@@ -72,7 +72,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // window creation
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Speed Render", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Mesh Fracturing", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
     glfwSetCursorPosCallback(window, mouse_callback);  
