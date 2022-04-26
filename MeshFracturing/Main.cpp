@@ -22,9 +22,7 @@
 #include "SpeedRender/Cubemap.h"
 #include "SpeedRender/Skybox.h"
 
-#include "Plane.h"
-#include "FractureComponent.h"
-#include "PlaneFracture.h"
+#include "ComputationalGeometry.h"
 
 GLenum glCheckError_(const char *file, int line)
 {

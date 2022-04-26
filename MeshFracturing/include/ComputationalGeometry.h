@@ -1,7 +1,5 @@
-#ifndef PLANE_FRACTURE_H
-#define PLANE_FRACTURE_H
-
-#include <glm/glm.hpp>
+#ifndef COMP_GEO_H
+#define COMP_GEO_H
 
 #include "Plane.h"
 #include "FractureComponent.h"
@@ -14,9 +12,7 @@ glm::vec2 Lerp(glm::vec2 a, glm::vec2 b, float t) {
     return a + (b - a) * t;
 }
 
-void Fracture(const Mesh& mesh, const Plane& plane, FractureComponent& leftFracture, FractureComponent& rightFracture) {
-	// clear the given fracture components
-
+void MeshSliceAlongPlane(const Mesh& mesh, const Plane& plane, FractureComponent& leftFracture, FractureComponent& rightFracture) {
 	std::vector<glm::vec3> intersectionPoints;
 
 	for (int i = 0; i < mesh.indices.size(); i += 3) {
@@ -151,6 +147,42 @@ void Fracture(const Mesh& mesh, const Plane& plane, FractureComponent& leftFract
 			}
 		}
 	}
+}
+
+void IterativeClippingFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int iterations=6) { 
+    // N times
+    //  get mesh bounds
+    //  imagine a sphere the size of mesh bounds
+    //  get a plane normal to that sphere
+    //  cut in two pieces along that plane
+    //  add exterior piece to fracture list
+    //  interior piece will be the new mesh
+    // add interior piece to fracture list
+}
+
+void RecursivePlaneFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int depth=4) { 
+    // cut mesh into two fracture components along a random plane
+    // put them into a list
+    // 
+    // N-1 times
+    //  get random plane within bounds and cut all fracture components in the list
+    //  clear the list and save the new fractures to the list as long as they are not empty
+    // 
+    // output the list
+}
+
+// should this be N=points or N=point_density??
+void TetrahedralFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int interiorPoints=10) { 
+    // generate a point cloud inside the mesh
+    // tetrahedralize the mesh along with the point cloud
+    // add each tetrahedron to the fracture list
+}
+
+void VoronoiFracture(const Mesh& mesh, std::vector<FractureComponent>& fractures, int interiorPoints=10) { 
+    // generate a point cloud inside the mesh
+    // tetrahedralize the mesh along with the point cloud
+    // convert tetra to a DT, then to a VD
+    // cut the cells out and add them to the fracture list
 }
 
 #endif

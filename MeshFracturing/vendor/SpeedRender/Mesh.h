@@ -11,30 +11,38 @@ struct Vertex {
     glm::vec2 texCoords;
 };
 
+struct Bounds {
+    glm::vec3 min, max, center;
+};
+
 class Mesh {
-    public:
-        // mesh data
-        std::vector<Vertex>       vertices;
-        std::vector<unsigned int> indices;
-        std::vector<Texture>      textures;
-        bool hasNormals;
-        bool hasUVs;
-        bool hasIndices;
+public:
+    // mesh data
+    std::vector<Vertex>       vertices;
+    std::vector<unsigned int> indices;
+    std::vector<Texture>      textures;
+    bool hasNormals;
+    bool hasUVs;
+    bool hasIndices;
 
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, bool hasNormals, bool hasUVs);
-        Mesh(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs, 
-            std::vector<unsigned int> indices, std::vector<Texture> textures);
-        Mesh(std::vector<float> vertexPositions);
-        void Draw(Shader &shader);
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, bool hasNormals, bool hasUVs);
+    Mesh(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs, 
+        std::vector<unsigned int> indices, std::vector<Texture> textures);
+    Mesh(std::vector<float> vertexPositions);
+    void Draw(Shader &shader);
 
-        void AddTexture(Texture tex) {
-            textures.push_back(tex);
-        }
-    private:
-        //  render data
-        unsigned int VAO, VBO, EBO;
+    void AddTexture(Texture tex) {
+        textures.push_back(tex);
+    }
 
-        void SetupMesh();
+    void RecalculateBounds();
+    Bounds GetBounds() { return bounds; }
+private:
+    //  render data
+    unsigned int VAO, VBO, EBO;
+    Bounds bounds;
+
+    void SetupMesh();
 };  
 
 #endif

@@ -10,6 +10,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
     this->hasIndices = true;
 
     SetupMesh();
+    RecalculateBounds();
 }
 
 Mesh::Mesh(std::vector<float> vertexPositions) {
@@ -30,6 +31,7 @@ Mesh::Mesh(std::vector<float> vertexPositions) {
     hasIndices = true;
 
     SetupMesh();
+    RecalculateBounds();
 }
 
 Mesh::Mesh(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs,
@@ -46,6 +48,8 @@ Mesh::Mesh(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std
     this->hasUVs = true;
 
     this->hasIndices = true;
+
+    RecalculateBounds();
 }
 
 void Mesh::SetupMesh() {
@@ -81,6 +85,37 @@ void Mesh::SetupMesh() {
     } 
 
     glBindVertexArray(0);
+}
+
+void Mesh::RecalculateBounds() {
+    bounds = { vertices[0].position, vertices[0].position, vertices[0].position };
+
+    for (int i = 0; i < vertices.size(); i++) {
+        float x = vertices[i].position.x;
+        float y = vertices[i].position.y;
+        float z = vertices[i].position.z;
+
+        if (x < bounds.min.x) {
+            bounds.min.x = x;
+        }
+        if (x > bounds.max.x) {
+            bounds.max.x = x;
+        }
+
+        if (y < bounds.min.y) {
+            bounds.min.y = y;
+        }
+        if (y > bounds.max.y) {
+            bounds.max.y = y;
+        }
+
+        if (z < bounds.min.z) {
+            bounds.min.z = z;
+        }
+        if (z > bounds.max.z) {
+            bounds.max.z = z;
+        }
+    }
 }
 
 void Mesh::Draw(Shader& shader) {
