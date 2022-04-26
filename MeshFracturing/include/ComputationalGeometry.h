@@ -216,6 +216,47 @@ void RecursivePlaneFracture(const Mesh& mesh, std::vector<FractureComponent>& fr
     //  clear the list and save the new fractures to the list as long as they are not empty
     // 
     // output the list
+
+    srand(time(NULL));
+
+    fractures.push_back(FractureComponent(mesh));
+
+    Bounds bounds = mesh.GetBounds();
+    float dx = bounds.max.x - bounds.min.x;
+    float dy = bounds.max.y - bounds.min.y;
+    float dz = bounds.max.z - bounds.min.z;
+
+    for (int i = 0; i < depth; i++) {
+        float posX = rand() % (int)dx + bounds.min.x;
+        float posY = rand() % (int)dy + bounds.min.y;
+        float posZ = rand() % (int)dz + bounds.min.z;
+
+        float normX = (rand() % 10000 / 10000.0f) * 2.0f - 1.0f;
+        float normY = (rand() % 10000 / 10000.0f) * 2.0f - 1.0f;
+        float normZ = (rand() % 10000 / 10000.0f) * 2.0f - 1.0f;
+
+        float normed = sqrt(normX * normX + normY * normY + normZ * normZ);
+
+        normX /= normed;
+        normY /= normed;
+        normZ /= normed;
+
+        glm::vec3 normal = glm::vec3(normX, normY, normZ);
+        glm::vec3 origin = glm::vec3(posX, posY, posZ);
+
+        origin = glm::vec3(0.0f) + bounds.center;
+
+        Plane plane(normal, origin);
+
+        std::vector<FractureComponent> newFractures;
+        for (int j = 0; j < fractures.size(); j++) {
+            FractureComponent left, right;
+            MeshSliceAlongPlane(fractures[j].GetMesh(), plane, left, right);
+            if (left.triangles.size() > 0) newFractures.push_back(left);
+            if (right.triangles.size() > 0) newFractures.push_back(right);
+        }
+        fractures = newFractures;
+    }
 }
 
 // should this be N=points or N=point_density??

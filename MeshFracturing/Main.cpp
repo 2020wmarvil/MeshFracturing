@@ -155,7 +155,7 @@ int main() {
     Model* model = &cube;
 
     enum FractureState { FS_ITERATIVE, FS_RECURSIVE, FS_TETRA, FS_VORONOI, FS_COUNT };
-    int fractureState = FS_ITERATIVE;
+    int fractureState = FS_RECURSIVE;
 
     glm::vec3 albedo(1.0f, 0.0f, 0.0f);
     float metallic = 0.0f;

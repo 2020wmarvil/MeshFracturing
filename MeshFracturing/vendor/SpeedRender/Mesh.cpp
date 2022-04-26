@@ -89,6 +89,10 @@ void Mesh::SetupMesh() {
 }
 
 void Mesh::RecalculateBounds() {
+    if (vertices.size() == 0) {
+        bounds = { glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f) };
+    }
+
     bounds = { vertices[0].position, vertices[0].position, vertices[0].position };
 
     for (int i = 0; i < vertices.size(); i++) {
