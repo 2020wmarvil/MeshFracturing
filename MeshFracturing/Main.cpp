@@ -151,8 +151,8 @@ int main() {
     Shader* shader = &litShader;
 
     enum ModelState { MS_CUBE, MS_SPHERE, MS_BUNNY, MS_TEAPOT, MS_SUZANNE, MS_COUNT };
-    int modelState = MS_BUNNY;
-    Model* model = &bunny;
+    int modelState = MS_CUBE;
+    Model* model = &cube;
 
     enum FractureState { FS_ITERATIVE, FS_RECURSIVE, FS_TETRA, FS_VORONOI, FS_COUNT };
     int fractureState = FS_ITERATIVE;
@@ -176,6 +176,7 @@ int main() {
     }; Skybox skybox(skyboxFaces);
 
     std::vector<Model> toRender;
+    std::vector<glm::vec3> explosionDirs;
     std::vector<FractureComponent> fractures;
     bool beginFracture = false, fractureMode = false;
 
@@ -183,6 +184,9 @@ int main() {
     int recursiveDepth = 4;
     int tetraPoints = 10;
     int voronoiPoints = 10;
+    float fractureSpeed = 1.0f;
+    bool pauseExplosion = false;
+    float fractureTime;
 
     // render loop
     while(!glfwWindowShouldClose(window)) {
@@ -209,8 +213,13 @@ int main() {
             for (int i = 0; i < fractures.size(); i++) {
                 toRender.push_back(fractures[i].GetMesh());
                 toRender[i].transform = model->transform;
+
+                // TODO: i think getbounds is local space but transform.position is world space
+                glm::vec3 dir = glm::normalize(toRender[i].meshes[0].GetBounds().center - model->transform.position);
+                explosionDirs.push_back(dir);
             }
 
+            fractureTime = 0.0f;
             fractureMode = true;
         }
 
@@ -239,6 +248,9 @@ int main() {
                 ImGui::InputInt("Points", &voronoiPoints, 1, 100);
             }
 
+            ImGui::InputFloat("Fracture Speed", &fractureSpeed, 0.1f, 10.0f);
+            ImGui::Checkbox("Pause Fracture", &pauseExplosion);
+
             if (ImGui::Button("Fracture")) { 
                 if (!beginFracture) {
                     beginFracture = true;
@@ -247,11 +259,11 @@ int main() {
             ImGui::SameLine();
             if (ImGui::Button("Reset")) { 
                 toRender.clear();
+                explosionDirs.clear();
                 fractures.clear();
                 beginFracture = false;
                 fractureMode = false;
             }
-
 
             if (shaderState == SS_UNLIT) shader = &unlitShader;
             else if (shaderState == SS_LIT) shader = &litShader;
@@ -305,7 +317,13 @@ int main() {
         }
 
         if (fractureMode) {
+            //std::cout << toRender.size() << std::endl;
             for (int i = 0; i < toRender.size(); i++) {
+                if (!pauseExplosion) {
+                    toRender[i].UpdatePhysics(deltaTime * fractureSpeed, fractureTime, explosionDirs[i]);
+                    fractureTime += deltaTime;
+                }
+
                 shader->SetMat4("model", toRender[i].GetModelMatrix());
                 toRender[i].Draw(*shader);
             }

@@ -117,6 +117,8 @@ void Mesh::RecalculateBounds() {
             bounds.max.z = z;
         }
     }
+
+    bounds.center = (bounds.max + bounds.min) * 0.5f;
 }
 
 void Mesh::Draw(Shader& shader) {

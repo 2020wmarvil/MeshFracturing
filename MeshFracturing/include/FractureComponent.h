@@ -44,7 +44,7 @@ public:
     Mesh GetMesh() {
         return Mesh(positions, normals, uvs, triangles, std::vector<Texture>());
 	}
-private:
+//private:
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> uvs;

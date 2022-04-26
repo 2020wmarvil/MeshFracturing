@@ -25,6 +25,31 @@ public:
         return model;
     }
 
+    glm::vec3 velocity;
+
+    void UpdatePhysics(float deltaTime, float fractureTime, glm::vec3 explosionDir) {
+        glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+        glm::vec3 drag = -velocity * 0.5f;
+        velocity += gravity * deltaTime;
+        velocity += drag * deltaTime;
+
+        float fractureDuration = 0.25f;
+        std::cout << (fractureTime) << std::endl;;
+        if (fractureTime < fractureDuration) {
+            float initialForce = 600.0f;
+            float targetForce = 0.0f;
+            float t = fractureTime / fractureDuration;
+            float cubicOutT = 1 - (1 - t) * (1 - t) * (1 - t);
+            float force = initialForce + (targetForce - initialForce) * cubicOutT;
+
+            glm::vec3 explosionForce = force * explosionDir;
+            velocity += explosionForce * deltaTime;
+
+        }
+
+        transform.position += velocity * deltaTime;
+    }
+
     std::vector<Mesh> meshes;
 private:
     void LoadModel(std::string path);

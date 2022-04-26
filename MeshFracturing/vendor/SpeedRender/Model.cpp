@@ -2,10 +2,12 @@
 
 Model::Model(std::string path) {
     LoadModel(path);
+    velocity = glm::vec3(0.0f);
 }
 
 Model::Model(Mesh mesh) {
     meshes.push_back(mesh);
+    velocity = glm::vec3(0.0f);
 }
 
 void Model::LoadModel(std::string path) {

@@ -23,7 +23,7 @@ void MeshSliceAlongPlane(const Mesh& mesh, const Plane& plane, FractureComponent
 
         glm::vec3 p1 = v1.position;
         glm::vec3 p2 = v2.position;
-        glm::vec3 p3 = v2.position;
+        glm::vec3 p3 = v3.position;
 
         glm::vec3 n1 = v1.normal;
         glm::vec3 n2 = v2.normal;
@@ -158,6 +158,33 @@ void IterativeClippingFracture(const Mesh& mesh, std::vector<FractureComponent>&
     //  add exterior piece to fracture list
     //  interior piece will be the new mesh
     // add interior piece to fracture list
+
+    Plane p(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+
+    FractureComponent left, right;
+    MeshSliceAlongPlane(mesh, p, left, right);
+
+    if (left.triangles.size() > 0) fractures.push_back(left);
+    if (right.triangles.size() > 0) fractures.push_back(right);
+
+    std::cout << "fracture" << std::endl;
+
+    //std::cout << mesh.indices.size() << std::endl;
+    //std::cout << left.triangles.size() << std::endl;
+    //std::cout << right.triangles.size() << std::endl;
+    //for (int i = 0; i < left.triangles.size(); i += 3) {
+    //    std::cout << "triangle\n" << std::endl;
+
+    //    glm::vec3 v1 = left.positions[i + 0];
+    //    glm::vec3 v2 = left.positions[i + 1];
+    //    glm::vec3 v3 = left.positions[i + 2];
+
+    //    std::cout << "\t" << v1.x << ", " << v1.y << ", " << v1.z << std::endl;
+    //    std::cout << "\t" << v2.x << ", " << v2.y << ", " << v2.z << std::endl;
+    //    std::cout << "\t" << v3.x << ", " << v3.y << ", " << v3.z << std::endl;
+
+    //}
+
 
     // N times
     //  get mesh bounds
